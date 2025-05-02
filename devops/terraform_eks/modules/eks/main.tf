@@ -1,5 +1,5 @@
 resource "aws_iam_role" "cluster_role" {
-  name = " ${var.cluter_name}-cluster-role"
+  name = " ${var.cluster_name}-cluster-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -19,7 +19,7 @@ resource "aws_iam_role_policy_attachment" "cluster_policy" {
 }
 
 resource "aws_eks_cluster" "main" {
-  name     = var.cluter_name
+  name     = var.cluster_name
   version  = var.cluster_version
   role_arn = aws_iam_role.cluster_role.arn
 
@@ -37,7 +37,7 @@ resource "aws_eks_cluster" "main" {
 #### wORKER NODE
 
 resource "aws_iam_role" "node" {
-  name = "${var.cluter_name}-node-role"
+  name = "${var.cluster_name}-node-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

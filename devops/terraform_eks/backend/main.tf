@@ -1,5 +1,11 @@
 resource "aws_s3_bucket" "remote_backend" {
-  bucket = "s3-${var.project_name}-backend"
+  bucket = "s3uniquename-backendbucket"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+
   lifecycle {
     prevent_destroy = true
   }
