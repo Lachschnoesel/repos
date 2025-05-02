@@ -64,7 +64,7 @@ resource "aws_route_table_association" "pupblic_rta" {
 resource "aws_nat_gateway" "private_gateway" {
   count         = length(var.private_subnet_cidrs)
   allocation_id = aws_eip.nat[count.index].id
-  subnet_id     = aws_subnet.subnet_private.id
+  subnet_id     = aws_subnet.subnet_private[count.index].id
 
   tags = {
     Name = "${var.cluster_name}-nat_${count.index + 1}"
