@@ -31,21 +31,11 @@ variable "cluster_version" {
   type        = string
 }
 
-variable "vpc_id" {
-  description = "VPC ID"
-  type        = string
-}
-
-variable "subnet_ids" {
-  description = "Subnet IDs"
-  type        = list(string)
-}
-
 variable "node_groups" {
-  description = "EKS node group config"
+  description = "EKS node group configuration"
   type = map(object({
-    instance_type = list(string)
-    capacity_type = string
+    instance_types = list(string)
+    capacity_type  = string
     scaling_config = object({
       desired_size = number
       max_size     = number
@@ -53,7 +43,6 @@ variable "node_groups" {
     })
   }))
 }
-
 variable "application_name" {
   type = string
 }

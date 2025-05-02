@@ -6,7 +6,6 @@ resource "aws_vpc" "main" {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }
 }
-
 resource "aws_subnet" "subnet_private" {
   count             = length(var.private_subnet_cidrs)
   vpc_id            = aws_vpc.main.id
@@ -19,7 +18,6 @@ resource "aws_subnet" "subnet_private" {
     "kubernetes.io/role/internal-elb"           = "1"
   }
 }
-
 resource "aws_subnet" "subnet-public" {
   count             = length(var.public_subnet_cidrs)
   vpc_id            = aws_vpc.main.id
@@ -35,6 +33,7 @@ resource "aws_subnet" "subnet-public" {
   }
 }
 
+#####################public
 resource "aws_internet_gateway" "public_gateway" {
   vpc_id = aws_vpc.main.id
 
@@ -42,8 +41,7 @@ resource "aws_internet_gateway" "public_gateway" {
     Name = "${var.cluster_name}-igw"
   }
 }
-
-resource "aws_route_table" "puplic_rt" {
+resource "aws_route_table" "public-rt" {
   vpc_id = aws_vpc.main.id
 
   route {
@@ -54,23 +52,33 @@ resource "aws_route_table" "puplic_rt" {
     Name = "${var.cluster_name}-public"
   }
 }
-
-resource "aws_route_table_association" "pupblic_rta" {
+resource "aws_route_table_association" "public_rta" {
   count          = length(var.public_subnet_cidrs)
   subnet_id      = aws_subnet.subnet-public[count.index].id
-  route_table_id = aws_route_table.puplic_rt.id
+  route_table_id = aws_route_table.public-rt.id
+}
+########################private
+resource "aws_eip" "nat" {
+  count  = length(var.public_subnet_cidrs)
+  domain = "vpc"
+
+  tags = {
+    Name = "${var.cluster_name}-nat-${count.index + 1}"
+  }
+
+
 }
 
 resource "aws_nat_gateway" "private_gateway" {
-  count         = length(var.private_subnet_cidrs)
+  count         = length(var.public_subnet_cidrs)
   allocation_id = aws_eip.nat[count.index].id
-  subnet_id     = aws_subnet.subnet_private[count.index].id
+  subnet_id     = aws_subnet.subnet-public[count.index].id
+
 
   tags = {
     Name = "${var.cluster_name}-nat_${count.index + 1}"
   }
 }
-
 resource "aws_route_table" "private_rt" {
   count  = length(var.private_subnet_cidrs)
   vpc_id = aws_vpc.main.id
@@ -84,9 +92,8 @@ resource "aws_route_table" "private_rt" {
     Name = "${var.cluster_name}-private${count.index + 1}"
   }
 }
-
 resource "aws_route_table_association" "priavte_rta" {
   count          = length(var.private_subnet_cidrs)
-  subnet_id      = aws_subnet.subnet_private.id
-  route_table_id = aws_route_table.private_rt.id
+  subnet_id      = aws_subnet.subnet_private[count.index].id
+  route_table_id = aws_route_table.private_rt[count.index].id
 }
