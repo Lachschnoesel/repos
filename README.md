@@ -30,7 +30,6 @@ Dieses Projekt demonstriert eine vollständige DevOps-Implementierung für eine 
 - GitHub Actions
 - Argo CD
 - AWS (VPC, Load Balancer)
-- Java (für Microservices)
 
 ## Ziel
 
